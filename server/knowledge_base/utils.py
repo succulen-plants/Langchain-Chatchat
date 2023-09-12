@@ -190,7 +190,11 @@ class KnowledgeFile:
 
         # TODO: 增加依据文件格式匹配text_splitter
         self.text_splitter_name = None
-
+    """
+    file2text: 将文档内容读取并切片， 切片后存储为：
+    docs:
+    [Document(page_content='睡前故事小狗汪汪历..', metadata={'source': '/usr/xxtcode/chatgpt/Langchain-Chatchat/knowledge_base/samples/content/1.pdf'})]
+    """
     def file2text(self, using_zh_title_enhance=ZH_TITLE_ENHANCE, refresh: bool = False):
         if self.docs is not None and not refresh:
             return self.docs
@@ -301,6 +305,7 @@ def files2docs_in_thread(
     kwargs_list = []
     for i, file in enumerate(files):
         kwargs = {}
+        #如果 `file` 是一个元组，并且元组的长度至少为 2，那么就执行下面的代码块。
         if isinstance(file, tuple) and len(file) >= 2:
             files[i] = KnowledgeFile(filename=file[0], knowledge_base_name=file[1])
         elif isinstance(file, dict):

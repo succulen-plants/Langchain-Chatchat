@@ -88,6 +88,8 @@ def is_possible_title(
 def zh_title_enhance(docs: Document) -> Document:
     title = None
     if len(docs) > 0:
+        #遍历文章，判断是否是标题， 如果是标题就用title记录， 
+        # 标题后面的文本信息在page_content中用title进行标记
         for doc in docs:
             if is_possible_title(doc.page_content):
                 doc.metadata['category'] = 'cn_Title'

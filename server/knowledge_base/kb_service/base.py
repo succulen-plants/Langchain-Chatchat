@@ -52,6 +52,7 @@ class KBService(ABC):
         return load_embeddings(self.embed_model, embed_device)
 
     def create_kb(self):
+        print('================================create_kb===================================')
         """
         创建知识库
         """
@@ -90,7 +91,9 @@ class KBService(ABC):
 
         if docs:
             self.delete_doc(kb_file)
+            #do_add_doc将文档存储到faiss 向量库
             doc_infos = self.do_add_doc(docs, **kwargs)
+            # doc_infosl:  [{'id': 'ab7f9715-2561-4da0-ad75-73ac8d0cfe09', 'metadata': {'source': '/usr/xxtcode/chatgpt/Langchain-Chatchat/knowledge_base/samples/content/test.txt'}},]
             status = add_file_to_db(kb_file,
                                     custom_docs=custom_docs,
                                     docs_count=len(docs),
@@ -227,10 +230,20 @@ class KBServiceFactory:
                     vector_store_type: Union[str, SupportedVSType],
                     embed_model: str = EMBEDDING_MODEL,
                     ) -> KBService:
+        print('=========KBServiceFactory ======get_service==========',kb_name,vector_store_type, embed_model )
+        # samples faiss text-embedding-ada-002
+        """
+           `isinstance(vector_store_type, str)` 是一个Python的内建函数，它检查 `vector_store_type` 是否是 `str` 的实例。换句话说，
+            它检查 `vector_store_type` 是否是字符串类型。如果是，它返回 `True`，否则返回 `False`。
+        """
+    
         if isinstance(vector_store_type, str):
+            #`getattr`函数从枚举`SupportedVSType`中获取具有特定名称的属性。
+            # `vector_store_type.upper()`操作将用户输入的类型转化为大写，以匹配可能的枚举值
             vector_store_type = getattr(SupportedVSType, vector_store_type.upper())
         if SupportedVSType.FAISS == vector_store_type:
             from server.knowledge_base.kb_service.faiss_kb_service import FaissKBService
+            # samples text-embedding-ada-002
             return FaissKBService(kb_name, embed_model=embed_model)
         if SupportedVSType.PG == vector_store_type:
             from server.knowledge_base.kb_service.pg_kb_service import PGKBService

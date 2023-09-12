@@ -470,6 +470,8 @@ def parse_args() -> argparse.ArgumentParser:
 
 
 def dump_server_info(after_start=False, args=None):
+    print('### args ###', args)
+    print('### after_start ###', args)
     import platform
     import langchain
     import fastchat
@@ -484,6 +486,7 @@ def dump_server_info(after_start=False, args=None):
     print("\n")
 
     model = LLM_MODEL
+
     if args and args.model_name:
         model = args.model_name
     print(f"当前LLM模型：{model} @ {llm_device()}")

@@ -50,8 +50,11 @@ def add_docs_to_db(session,
     '''
     将某知识库某文件对应的所有Document信息添加到数据库。
     doc_infos形式：[{"id": str, "metadata": dict}, ...]
+    doc_id=d["id"],
+    meta_data=d["metadata"],
     '''
     for d in doc_infos:
+
         obj = FileDocModel(
             kb_name=kb_name,
             file_name=file_name,
@@ -84,6 +87,12 @@ def add_file_to_db(session,
     kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_file.kb_name).first()
     if kb:
         # 如果已经存在该文件，则更新文件信息与版本号
+        """
+        1. 第一个查询 `kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_file.kb_name).first()` 是在查询名为 `kb_file.kb_name` 的知识库是否存在。
+
+        2. 第二个查询 `KnowledgeFileModel = (session.query(KnowledgeFileModel) .filter_by(file_name=kb_file.filename,
+            kb_name=kb_file.kb_name).first())` 是在查询知识库中是否存在名为 `kb_file.filename` 的文件。
+        """
         existing_file: KnowledgeFileModel = (session.query(KnowledgeFileModel)
                                              .filter_by(file_name=kb_file.filename,
                                                         kb_name=kb_file.kb_name)

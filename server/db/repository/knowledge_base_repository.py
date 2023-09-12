@@ -5,6 +5,12 @@ from server.db.session import with_session
 @with_session
 def add_kb_to_db(session, kb_name, vs_type, embed_model):
     # 创建知识库实例
+    """
+    `add_kb_to_db()`: 这是一个函数，接受一个会话和一组参数，
+    然后在数据库中创建或更新一个知识库实例。这个函数被 `with_session` 装饰，所以你不需要显式地处理会话的提交和回滚。
+    创建知识库samples
+    """
+    print('=========================add_kb_to_db=================================', kb_name, vs_type, embed_model)
     kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_name).first()
     if not kb:
         kb = KnowledgeBaseModel(kb_name=kb_name, vs_type=vs_type, embed_model=embed_model)

@@ -40,8 +40,29 @@ def load_faiss_vector_store(
         search_index = FAISS.load_local(vs_path, embeddings, normalize_L2=True)
     else:
         # create an empty vector store
+        '''
+1. 首先，创建一个新的`Document`实例`doc`，其中的`page_content`值为`"init"`，并没有元数据（`metadata`）。
+
+2. 接着，使用FAISS的`from_documents`函数创建一个新的FAISS索引`search_index`。这个函数接收一个文档列表（在这里只有一个文档`doc`），一个嵌入（`embeddings`），和一个指示是否对嵌入进行L2标准化的参数（在这里设为`True`）。
+
+3. 然后，获取`search_index`中所有文档的ID。这里，`_dict`应该是`docstore`对象的一个属性，其包含所有文档的字典，键是文档ID，值是文档内容。因此，`[k for k, v in search_index.docstore._dict.items()]`表示获取所有文档的ID。
+
+4. 使用FAISS索引的`delete`函数删除所有这些文档。虽然我们刚创建了一个含有一个文档的FAISS索引，但是我们马上删除这个文档，从而得到一个空的FAISS索引。
+
+5. 最后，使用FAISS索引的`save_local`函数将这个空的FAISS索引保存到本地路径`vs_path`。
+
+总的来说，这段代码创建了一个空的FAISS索引并保存到了本地。这个索引可以后续被用来存储文档的向量嵌入，并进行相似性搜索。
+        '''
         doc = Document(page_content="init", metadata={})
         search_index = FAISS.from_documents([doc], embeddings, normalize_L2=True)
+        """
+            db = FAISS.from_documents(docs, embeddings) 是使用 FAISS 库创建索引的代码。它将文档和对应的嵌入向量作为输入，
+            并返回一个 FAISS 索引对象，该对象可以用于快速检索相似的文档。
+            db = FAISS.from_documents(docs, embeddings)只是在内存中创建了一个 FAISS 索引对象，用于快速检索相似的文档。如果需要将索引保存到磁盘上，
+            db.save_local("faiss_index") 将 FAISS 索引对象保存到本地文件系统
+            在代码中db = FAISS.from_documents(docs, embeddings)，docs首先使用embeddings函数将它们嵌入到向量表示中，然后传递给类from_documents的方法FAISS以创建 FAISS 索引。
+            该embeddings函数通常是一个预先训练的模型，它将每个文档映射docs到高维向量表示。然后使用该向量表示来构建 FAISS 索引，该索引允许基于向量表示对文档进行高效的相似性搜索和检索。
+        """
         ids = [k for k, v in search_index.docstore._dict.items()]
         search_index.delete(ids)
         search_index.save_local(vs_path)
@@ -114,15 +135,22 @@ class FaissKBService(KBService):
         search_index = self.load_vector_store()
         docs = search_index.similarity_search_with_score(query, k=top_k, score_threshold=score_threshold)
         return docs
-
+    """
+    将切片后的文档信息存储到FAISS
+    """
     def do_add_doc(self,
                    docs: List[Document],
                    **kwargs,
                    ) -> List[Dict]:
+        # 创建空的FAISS索引并保存到了本地， <langchain.vectorstores.faiss.FAISS object at 0x7ff0ff2b8940>
         vector_store = self.load_vector_store()
+
+        # `add_documents`方法可能会将这些`Document`对象添加到`vector_store`中，并返回一个与`docs`中每个对象对应的id列表。这个id列表被赋值给了变量`ids`。
+        #  docs: [Document(page_content='睡前故事小狗汪汪历..', metadata={'source': '/usr/xxtcode/chatgpt/Langchain-Chatchat/knowledge_base/samples/content/1.pdf'})]
+        # ids： ['ab7f9715-2561-4da0-ad75-73ac8d0cfe09', 'c9a8c50f-cfae-4ca1-a4fd-47c115f10b7d'...]
         ids = vector_store.add_documents(docs)
         doc_infos = [{"id": id, "metadata": doc.metadata} for id, doc in zip(ids, docs)]
-        torch_gc()
+        torch_gc() #这个函数用于清空 PyTorch 在 GPU 上分配的缓存，以释放 GPU 内存
         if not kwargs.get("not_refresh_vs_cache"):
             vector_store.save_local(self.vs_path)
             self.refresh_vs_cache()

@@ -7,8 +7,17 @@ from datetime import datetime
 
 
 if __name__ == "__main__":
+
+
     import argparse
     
+    '''
+    你提供的这段代码是使用Python的`argparse`库创建命令行接口的例子。这段代码创建了一个命令行参数`--recreate-vs`，
+    这是一个布尔标志，如果在命令行中使用了它，它将被设为`True`。
+    `argparse.RawTextHelpFormatter`这个类让你可以在`help`字符串中加入一些格式，比如换行，这样在显示帮助信息时会更清晰易读。
+    在这个例子中，`--recreate-vs`参数的帮助信息就加入了多行的文本。
+    '''
+
     parser = argparse.ArgumentParser()
     parser.formatter_class = argparse.RawTextHelpFormatter
 

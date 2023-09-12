@@ -47,7 +47,8 @@ def knowledge_base_chat(query: str = Body(..., description="用户输入", examp
                                            history: Optional[List[History]],
                                            model_name: str = LLM_MODEL,
                                            ) -> AsyncIterable[str]:
-        callback = AsyncIteratorCallbackHandler()
+        # 使用AsyncCallbackHandler以避免阻塞 runloop, 异步问题不太清楚
+        callback = AsyncIteratorCallbackHandler() 
         model = ChatOpenAI(
             streaming=True,
             verbose=True,
@@ -98,6 +99,9 @@ def knowledge_base_chat(query: str = Body(..., description="用户输入", examp
                              ensure_ascii=False)
 
         await task
-
+    """
+    `text/event-stream` 是一种 MIME 类型，常用于服务器发送事件数据的 Server-Sent Events（SSE）技术。
+    SSE 是一种允许服务器端单向发送消息到客户端的技术。与 WebSocket 不同，它是单向的。
+    """
     return StreamingResponse(knowledge_base_chat_iterator(query, kb, top_k, history, model_name),
                              media_type="text/event-stream")

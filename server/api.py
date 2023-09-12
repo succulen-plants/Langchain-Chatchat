@@ -59,7 +59,11 @@ def create_app():
     app.post("/chat/chat",
              tags=["Chat"],
              summary="与llm模型对话(通过LLMChain)")(chat)
-
+    """
+    你可以理解为Python Flask框架建立了一种映射关系。当服务器收到对应路径（"/chat/knowledge_base_chat"）的POST请求时，
+    会自动触发装饰器下面的函数`knowledge_base_chat()`来处理这个请求。所以，`knowledge_base_chat()`函数的任务是接收请求、解析请求中的数据（如果有的话），
+    处理这些数据（在你的场景中可能涉及到与知识库的交互），并创建返回给客户端的响应。
+    """
     app.post("/chat/knowledge_base_chat",
              tags=["Chat"],
              summary="与知识库对话")(knowledge_base_chat)
