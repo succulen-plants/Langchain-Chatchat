@@ -133,6 +133,7 @@ class FaissKBService(KBService):
                   embeddings: Embeddings = None,
                   ) -> List[Document]:
         search_index = self.load_vector_store()
+        #其中之一是similarity_search_with_score，它不仅允许您返回文档，还允许返回查询到它们的距离分数。返回的距离分数是L2距离。因此，分数越低越好。
         docs = search_index.similarity_search_with_score(query, k=top_k, score_threshold=score_threshold)
         return docs
     """
